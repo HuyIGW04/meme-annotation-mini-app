@@ -47,7 +47,7 @@ def toast_reject(image, reason):
         position: fixed;
         top: 20px;
         right: 20px;
-        background-color: #800000;  /* đỏ nhạt hơn */
+        background-color: #800000;  
         color: #ffffff;
         padding: 16px 28px;
         border-radius: 8px;
@@ -56,7 +56,7 @@ def toast_reject(image, reason):
         font-size: 18px;
         z-index: 2147483647;
         pointer-events: none;
-        animation: fadeinout 2s forwards; /* tổng 4s: 0.4s fade-in, 2.8s hiện rõ, 0.8s fade-out */
+        animation: fadeinout 2s forwards; 
     ">
         ✅ Reject successfully: <b>{image_name}</b> (Reason: {reason})
     </div>
