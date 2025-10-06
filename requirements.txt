@@ -1,0 +1,7 @@
+fastapi[version]
+uvicorn[standard]
+ultralytics==8.3.115
+gradio==5.26.0
+pillow==11.2.1
+requests==2.32.3
+python-multipart==0.0.20
