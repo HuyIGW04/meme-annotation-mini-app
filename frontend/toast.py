@@ -1,5 +1,6 @@
 import os
 
+
 def toast_success(image):
     image_name = os.path.basename(image) if image else "Unknown"
     toast_html = f"""

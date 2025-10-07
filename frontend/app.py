@@ -1,27 +1,34 @@
 import gradio as gr
-from toast import toast_reject, toast_success
 import os
+import requests
+from toast import toast_reject, toast_success
+
+# backend API
+API_URL = "http://127.0.0.1:8000" 
 
 
-def annotate(image, label, target, type_img, topic, action, reason):
-    image_name = os.path.basename(image) if image else None
+def submit_to_api(image, label, target, type_img, topic, action, reason):
+    if not image:
+        return {"error": "No image selected"}
+
+    files = {"image": open(image, "rb")}
     if action == "Submit":
-        result = {
-            "image": image_name,
-            "class": label,
+        data = {
+            "label": label,
             "target": target,
-            "type": type_img,
-            "topic": topic,
+            "type_img": type_img,
+            "topic": topic
         }
+        resp = requests.post(
+            f"{API_URL}/annotate/submit", files=files, data=data)
     else:  # Reject
-        result = {
-            "image": image_name,
-            "action": action,
-            "reason": reason
-        }
-    return result
+        data = {"reason": reason}
+        resp = requests.post(
+            f"{API_URL}/annotate/reject", files=files, data=data)
 
+    return resp.json()
 
+# only use for rejecting
 def show_reason_reject():
     return gr.update(visible=True, value=None), gr.update(visible=True)
 
@@ -30,8 +37,11 @@ with gr.Blocks() as demo:
     gr.Markdown("# Harmful meme classification")
 
     with gr.Row():
-        image = gr.Image(type="filepath", label="Meme",
-                         value="https://phongvu.vn/cong-nghe/wp-content/uploads/2025/05/meme-hai-2.jpg")
+        image = gr.Image(
+            type="filepath",
+            label="Meme",
+            value="https://phongvu.vn/cong-nghe/wp-content/uploads/2025/05/meme-hai-2.jpg"
+        )
 
         with gr.Column():
             label = gr.Radio(["Harmful", "Harmless"],
@@ -78,7 +88,7 @@ with gr.Blocks() as demo:
 
     # Submit flow
     btn_submit.click(
-        annotate,
+        submit_to_api,
         inputs=[image, label, target, type_img,
                 topic, gr.State("Submit"), gr.State("")],
         outputs=output
@@ -88,16 +98,16 @@ with gr.Blocks() as demo:
         outputs=toast
     )
 
-    # Reject → show reason + confirm
+    # Reject
     btn_reject.click(
         show_reason_reject,
         inputs=None,
         outputs=[reject_reason, btn_confirm_reject]
     )
 
-    # Confirm Reject → JSON + toast
+    # Confirm Reject
     btn_confirm_reject.click(
-        annotate,
+        submit_to_api,
         inputs=[image, label, target, type_img,
                 topic, gr.State("Reject"), reject_reason],
         outputs=output
