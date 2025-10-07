@@ -42,7 +42,7 @@ async def submit_annotation(
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-    return JSONResponse(content={"status": "success", "data": data})
+    return JSONResponse(data)
 
 
 # reject API
@@ -68,4 +68,4 @@ async def reject_annotation(
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-    return JSONResponse(content={"status": "rejected", "data": data})
+    return JSONResponse(data)
