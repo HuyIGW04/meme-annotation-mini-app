@@ -21,7 +21,8 @@ async def submit_annotation(
     label: str = Form(...),
     target: str = Form(...),
     type_img: str = Form(...),
-    topic: str = Form(...)
+    topic: str = Form(...),
+    description: str = Form("")          # add textbox
 ):
     # save image
     img_path = os.path.join(BASE_DIR, "submit/images", image.filename)
@@ -31,10 +32,11 @@ async def submit_annotation(
     # save json
     data = {
         "image": image.filename,
-        "class": label,
         "target": target,
         "type": type_img,
         "topic": topic,
+        "class": label,
+        "description": description
     }
     name_json = os.path.splitext(image.filename)[0]
     json_path = os.path.join(BASE_DIR, "submit/jsons",

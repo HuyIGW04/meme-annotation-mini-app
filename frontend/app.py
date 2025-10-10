@@ -4,10 +4,11 @@ import requests
 from toast import toast_reject, toast_success
 
 # backend API
-API_URL = "http://127.0.0.1:8000" 
+API_URL = "http://127.0.0.1:8000"
 
 
-def submit_to_api(image, label, target, type_img, topic, action, reason):
+# update: add description
+def submit_to_api(image, label, target, type_img, topic, description, action, reason):
     if not image:
         return {"error": "No image selected"}
 
@@ -17,7 +18,8 @@ def submit_to_api(image, label, target, type_img, topic, action, reason):
             "label": label,
             "target": target,
             "type_img": type_img,
-            "topic": topic
+            "topic": topic,
+            "description": description
         }
         resp = requests.post(
             f"{API_URL}/annotate/submit", files=files, data=data)
@@ -29,6 +31,8 @@ def submit_to_api(image, label, target, type_img, topic, action, reason):
     return resp.json()
 
 # only use for rejecting
+
+
 def show_reason_reject():
     return gr.update(visible=True, value=None), gr.update(visible=True)
 
@@ -65,6 +69,10 @@ with gr.Blocks() as demo:
 
             btn_confirm_reject = gr.Button("Confirm Reject", visible=False)
 
+    # update: add textbox for description
+    description = gr.Textbox(
+        label='Image Description', placeholder="add a short image description ...", lines=2)
+
     output = gr.JSON(label="annotation JSON")
     toast = gr.HTML()
 
@@ -75,22 +83,23 @@ with gr.Blocks() as demo:
             gr.update(value="individual"),
             gr.update(value="Hate"),
             gr.update(value="politics"),
+            gr.update(value=""),
             gr.update(visible=False, value=None),
             gr.update(visible=False),
             None,
             ""
         ),
         inputs=None,
-        outputs=[label, target, type_img, topic,
+        outputs=[label, target, type_img, topic, description,
                  reject_reason, btn_confirm_reject,
                  output, toast]
     )
 
-    # Submit flow
+    # Submit flow - update: add description
     btn_submit.click(
         submit_to_api,
         inputs=[image, label, target, type_img,
-                topic, gr.State("Submit"), gr.State("")],
+                topic, description, gr.State("Submit"), gr.State("")],
         outputs=output
     ).then(
         toast_success,
@@ -109,7 +118,7 @@ with gr.Blocks() as demo:
     btn_confirm_reject.click(
         submit_to_api,
         inputs=[image, label, target, type_img,
-                topic, gr.State("Reject"), reject_reason],
+                topic, description, gr.State("Reject"), reject_reason],
         outputs=output
     ).then(
         toast_reject,
